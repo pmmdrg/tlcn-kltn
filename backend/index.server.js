@@ -4,7 +4,9 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
 const connect = require('./configs/connectDb');
+const authRouter = require('./routes/auth.route');
 const userRouter = require('./routes/user.route');
+const productRouter = require('./routes/product.route');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 
 require('dotenv').config();
@@ -19,7 +21,9 @@ app.use(bodyParser.json());
 
 app.use(cookieParser());
 
+app.use('/api/auths', authRouter);
 app.use('/api/users', userRouter);
+app.use('/api/products', productRouter);
 
 app.use(notFound);
 app.use(errorHandler);
