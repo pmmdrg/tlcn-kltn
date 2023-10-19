@@ -44,6 +44,12 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    size: [
+      {
+        type: Number,
+        required: true,
+      },
+    ],
     ratings: [
       {
         star: Number,

@@ -17,17 +17,18 @@ const getProducts = asyncHandler(async (req, res) => {
     if (req.query.sort) {
       const sortBy = req.query.sort;
 
-      products = await Product.find(query).sort(sortBy);
+      products = await Product.find(query).sort(sortBy).skip(skip).limit(limit);
     } else {
-      products = await Product.find(query).sort('createdAt');
+      products = await Product.find(query)
+        .sort('createdAt')
+        .skip(skip)
+        .limit(limit);
     }
     if (req.query.page) {
       const productCounts = await Product.countDocuments();
 
       if (skip >= productCounts) throw new Error('This page does not exist');
     }
-
-    products = await Product.find(query).skip(skip).limit(limit);
     res.json(products);
   } catch (err) {
     throw new Error(err);
