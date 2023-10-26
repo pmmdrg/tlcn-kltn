@@ -1,4 +1,3 @@
-const speakeasy = require('speakeasy');
 const asyncHandler = require('express-async-handler');
 
 const User = require('../models/user.model');
