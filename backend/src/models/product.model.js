@@ -38,10 +38,7 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
     images: [],
-    color: {
-      type: String,
-      required: true,
-    },
+    color: [],
     size: [
       {
         type: Number,
@@ -51,12 +48,17 @@ const productSchema = new mongoose.Schema(
     ratings: [
       {
         star: Number,
+        comment: String,
         postedBy: {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'User',
         },
       },
     ],
+    averageRating: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
