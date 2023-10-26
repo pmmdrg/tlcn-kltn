@@ -1,7 +1,12 @@
+const fs = require('fs');
 const asyncHandler = require('express-async-handler');
 const slugify = require('slugify');
 
 const Product = require('../models/product.model');
+const {
+  cloudinaryUploadImg,
+  cloudinaryDeleteImg,
+} = require('../configs/cloudinary');
 const { validateMongoDbId } = require('../utils/validateMongoDbId');
 
 const getProducts = asyncHandler(async (req, res) => {
@@ -144,6 +149,39 @@ const rating = asyncHandler(async (req, res) => {
   }
 });
 
+const uploadImages = asyncHandler(async (req, res) => {
+  try {
+    const uploader = (path) => {
+      return cloudinaryUploadImg(path);
+    };
+    const imageUrls = [];
+    const files = req.files;
+
+    for (const file of files) {
+      const { path } = file;
+      const newPath = await uploader(path);
+
+      imageUrls.push(newPath);
+      fs.unlinkSync(path);
+    }
+    res.json(imageUrls);
+  } catch (err) {
+    throw new Error(err);
+  }
+});
+
+const deleteImages = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await cloudinaryDeleteImg(id);
+
+    res.json({ msg: 'Deleted image' });
+  } catch (err) {
+    throw new Error(err);
+  }
+});
+
 module.exports = {
   getProducts,
   getProductById,
@@ -151,4 +189,6 @@ module.exports = {
   updateProduct,
   deleteProduct,
   rating,
+  uploadImages,
+  deleteImages,
 };
