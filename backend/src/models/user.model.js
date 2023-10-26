@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     phone: String,
-    address: String,
+    address: [],
     role: {
       type: String,
       default: 'user',
