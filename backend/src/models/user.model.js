@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const speakeasy = require('speakeasy');
 
 const userSchema = new mongoose.Schema(
   {
@@ -21,19 +22,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    phone: {
-      type: String,
-    },
-    address: {
-      type: String,
-    },
+    phone: String,
+    address: String,
     role: {
       type: String,
       default: 'user',
     },
-    refreshToken: {
-      type: String,
-    },
+    refreshToken: String,
+    otpCode: String,
+    passwordResetExpires: Date,
   },
   { timestamps: true }
 );
@@ -47,6 +44,25 @@ userSchema.pre('save', async function () {
 
 userSchema.methods.isPasswordMatch = async function (hash) {
   return await bcrypt.compare(this.password, hash);
+};
+
+userSchema.methods.generateOtpCode = async function () {
+  const rounds = 10;
+  const secretKey = process.env.SECRET_KEY;
+  const otpCode = speakeasy.totp({
+    secret: secretKey.base32,
+    encoding: 'base32',
+  });
+  const hashedOtp = await bcrypt.hash(otpCode, rounds);
+
+  this.otpCode = hashedOtp;
+  this.passwordResetExpires = Date.now() + 2 * 60 * 1000;
+
+  return otpCode;
+};
+
+userSchema.methods.isOtpMatch = async function (otp) {
+  return await bcrypt.compare(this.otpCode, otp);
 };
 
 module.exports = mongoose.model('User', userSchema);
