@@ -223,6 +223,24 @@ const forgotPasswordToken = asyncHandler(async (req, res) => {
   }
 });
 
+const userAddress = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+
+  validateMongoDbId(_id);
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      _id,
+      {
+        address: req.body?.address,
+      },
+      { new: true }
+    );
+    res.json(updatedUser);
+  } catch (err) {
+    throw new Error(err);
+  }
+});
+
 module.exports = {
   getUsers,
   getUserById,
@@ -234,4 +252,5 @@ module.exports = {
   updatePassword,
   otpCheck,
   forgotPasswordToken,
+  userAddress,
 };
