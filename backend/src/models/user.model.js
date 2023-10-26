@@ -31,6 +31,12 @@ const userSchema = new mongoose.Schema(
     refreshToken: String,
     otpCode: String,
     passwordResetExpires: Date,
+    wishlist: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Product',
+      },
+    ],
   },
   { timestamps: true }
 );
