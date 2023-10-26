@@ -11,6 +11,7 @@ const userRouter = require('./routes/user.route');
 const productRouter = require('./routes/product.route');
 const categoryRouter = require('./routes/category.route');
 const brandRouter = require('./routes/brand.route');
+const colorRouter = require('./routes/color.route');
 const { notFound, errorHandler } = require('./middlewares/errorHandler');
 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/api/users', userRouter);
 app.use('/api/products', productRouter);
 app.use('/api/categories', categoryRouter);
 app.use('/api/brands', brandRouter);
+app.use('/api/colors', colorRouter);
 
 app.use(notFound);
 app.use(errorHandler);
