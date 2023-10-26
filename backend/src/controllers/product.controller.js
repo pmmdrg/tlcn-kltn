@@ -91,10 +91,64 @@ const deleteProduct = asyncHandler(async (req, res) => {
   }
 });
 
+const rating = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const { star, comment, productId } = req.body;
+
+  try {
+    const product = await Product.findById(productId);
+    const isRated = product?.ratings.find((rating) => {
+      return rating.postedBy.toString() === _id.toString();
+    });
+
+    if (isRated) {
+      await Product.findOneAndUpdate(
+        {
+          ratings: { $elemMatch: isRated },
+        },
+        { 'ratings.$.star': star, 'ratings.$.comment': comment },
+        { new: true }
+      );
+    } else {
+      await Product.findByIdAndUpdate(
+        productId,
+        {
+          $push: {
+            ratings: {
+              star: star,
+              comment: comment,
+              postedBy: _id,
+            },
+          },
+        },
+        { new: true }
+      );
+    }
+
+    const updatedProduct = await Product.findById(productId);
+    let ratingCount = updatedProduct?.ratings.length;
+    let ratingSum = updatedProduct?.ratings.reduce((acc, cur) => {
+      return acc + cur.star;
+    }, 0);
+    let avgRating = ratingSum / ratingCount;
+
+    const finalProduct = await Product.findByIdAndUpdate(
+      productId,
+      { averageRating: parseFloat(avgRating.toFixed(1)) },
+      { new: true }
+    );
+
+    res.json(finalProduct);
+  } catch (err) {
+    throw new Error(err);
+  }
+});
+
 module.exports = {
   getProducts,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
+  rating,
 };
