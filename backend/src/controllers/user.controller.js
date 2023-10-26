@@ -26,6 +26,18 @@ const getUserById = asyncHandler(async (req, res) => {
   }
 });
 
+const getUserWishlist = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+
+  try {
+    const findUser = await User.findById(_id).populate('wishlist');
+
+    res.json(findUser);
+  } catch (err) {
+    throw new Error(err);
+  }
+});
+
 const createUser = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -78,6 +90,42 @@ const deleteUser = asyncHandler(async (req, res) => {
     const user = await User.findByIdAndDelete(id);
 
     res.json(user);
+  } catch (err) {
+    throw new Error(err);
+  }
+});
+
+const addToWishList = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  const { productId } = req.body;
+
+  try {
+    const user = await User.findById(_id);
+    const isAdded = user?.wishlist.find((id) => {
+      return id.toString() === productId;
+    });
+
+    if (isAdded) {
+      const updatedUser = await User.findByIdAndUpdate(
+        _id,
+        {
+          $pull: { wishlist: productId },
+        },
+        { new: true }
+      );
+
+      res.json(updatedUser);
+    } else {
+      const updatedUser = await User.findByIdAndUpdate(
+        _id,
+        {
+          $push: { wishlist: productId },
+        },
+        { new: true }
+      );
+
+      res.json(updatedUser);
+    }
   } catch (err) {
     throw new Error(err);
   }
@@ -178,9 +226,11 @@ const forgotPasswordToken = asyncHandler(async (req, res) => {
 module.exports = {
   getUsers,
   getUserById,
+  getUserWishlist,
   createUser,
   updateUser,
   deleteUser,
+  addToWishList,
   updatePassword,
   otpCheck,
   forgotPasswordToken,
